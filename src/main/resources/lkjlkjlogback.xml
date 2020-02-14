@@ -1,0 +1,2 @@
+<!--prevent annoying spring boot logs -->
+<configuration />
