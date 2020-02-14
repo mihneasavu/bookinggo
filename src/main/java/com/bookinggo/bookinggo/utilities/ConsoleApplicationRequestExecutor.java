@@ -4,6 +4,8 @@ import com.bookinggo.bookinggo.representation.Response;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -11,12 +13,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.Duration;
 import java.util.Collections;
 
-@Component
 public class ConsoleApplicationRequestExecutor {
 
-    private static String baseUrl = "https://techtest.rideways.com/";
+    private String baseUrl;
 
-    public Response queryProvider(String pickup, String dropoff, String provider) throws RestClientResponseException {
+    public ConsoleApplicationRequestExecutor(String url){
+        this.baseUrl = url;
+    }
+
+    public Response queryProvider(String pickup, String dropoff, String provider) throws RestClientResponseException, ResourceAccessException {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<Response> entity = new HttpEntity<>(headers);

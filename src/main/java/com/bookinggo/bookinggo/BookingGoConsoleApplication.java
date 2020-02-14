@@ -15,6 +15,7 @@ public class BookingGoConsoleApplication {
 
     public static void main(String[] args) {
 
+
         if (args.length == 0) {
             SpringApplication.run(BookingGoConsoleApplication.class, args);
         } else {
@@ -23,7 +24,7 @@ public class BookingGoConsoleApplication {
             String dropoff = args[1];
             int numberOfPassengers = Integer.parseInt(args[2]);
 
-            List<Car> processedOptions = DataProcessingUtility.queryAllProviders(pickup, dropoff, numberOfPassengers);
+            List<Car> processedOptions = new DataProcessingUtility("https://techtest.rideways.com").queryAllProviders(pickup, dropoff, numberOfPassengers);
             if (processedOptions.isEmpty()) {
                 System.out.println("Could not contact any provider");
             } else {

@@ -3,6 +3,7 @@ package com.bookinggo.bookinggo.utilities;
 import com.bookinggo.bookinggo.representation.Car;
 import com.bookinggo.bookinggo.representation.Option;
 import com.bookinggo.bookinggo.representation.Response;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.util.*;
@@ -10,10 +11,13 @@ import java.util.stream.Collectors;
 
 public class DataProcessingUtility {
 
-    private static ConsoleApplicationRequestExecutor controller = new ConsoleApplicationRequestExecutor();
+    private ConsoleApplicationRequestExecutor executor;
 
+    public DataProcessingUtility(String url) {
+        this.executor = new ConsoleApplicationRequestExecutor(url);
+    }
 
-    private static Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
+    private Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
         put("STANDARD", 4);
         put("EXECUTIVE", 4);
         put("LUXURY", 4);
@@ -21,47 +25,51 @@ public class DataProcessingUtility {
         put("LUXURY_PEOPLE_CARRIER", 6);
         put("MINIBUS", 16);
     }};
-    private static List<String> providers = new ArrayList<String>() {{
+    private List<String> providers = new ArrayList<String>() {{
         add("dave");
         add("eric");
         add("jeff");
     }};
 
-    public static Boolean providerValid(String provider){
+    public Boolean providerValid(String provider){
         return provider.contains(provider);
     }
 
-    public static List<Car> queryAllProviders(String pickup, String dropoff, int numberOfPassengers) {
+    public List<Car> queryAllProviders(String pickup, String dropoff, int numberOfPassengers) {
         List<Response> responseList = new ArrayList<>();
 
         for (String provider : providers) {
             try {
-                responseList.add(controller.queryProvider(pickup, dropoff, provider));
+                responseList.add(executor.queryProvider(pickup, dropoff, provider));
             } catch (RestClientResponseException e) {
                 System.out.println("An error occurred contacting provider " + provider + ": " + e.getRawStatusCode());
+            } catch (ResourceAccessException e) {
+                System.out.println("provider " + provider + " timed out: " + e);
             }
         }
 
-        return DataProcessingUtility.processedReturnedOptions(responseList, numberOfPassengers);
+        return processedReturnedOptions(responseList, numberOfPassengers);
 
     }
 
-    public static Optional<Response> queryProvider(String pickup, String dropoff, int numberOfPassengers, String provider) {
+    public Optional<Response> queryProvider(String pickup, String dropoff, int numberOfPassengers, String provider) {
         try {
-            Response response = controller.queryProvider(pickup, dropoff, provider);
+            Response response = executor.queryProvider(pickup, dropoff, provider);
             response.setOptions(response.getOptions().stream()
                     .filter(o -> carCapacityMap.get(o.getCar_type()) >= numberOfPassengers)
                     .collect(Collectors.toList()));
             return Optional.of(response);
         } catch (RestClientResponseException e) {
             System.out.println("An error occurred contacting provider " + provider + ": " + e.getRawStatusCode());
+        } catch (ResourceAccessException e) {
+            System.out.println("provider " + provider + " timed out: " + e);
         }
             return Optional.empty();
     }
 
 
 
-    private static List<Car> processedReturnedOptions(List<Response> responseList, int passengers) {
+    private List<Car> processedReturnedOptions(List<Response> responseList, int passengers) {
 
         Map<String, Car> carMap = new HashMap<>();
 
