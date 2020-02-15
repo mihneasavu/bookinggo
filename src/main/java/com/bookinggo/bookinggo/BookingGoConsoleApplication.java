@@ -11,7 +11,8 @@ import java.util.List;
 @SpringBootApplication
 public class BookingGoConsoleApplication {
 
-
+    public static final String USAGE = "To run this Application using the console, please provide the following arguments: pickup location, dropoff location and number of passengers." +
+            "\n The response will contain the cheapest option for each available vehicle type, all sorted in descending order of price.";
 
     public static void main(String[] args) {
 
@@ -19,22 +20,25 @@ public class BookingGoConsoleApplication {
         if (args.length == 0) {
             SpringApplication.run(BookingGoConsoleApplication.class, args);
         } else {
-
-            String pickup = args[0];
-            String dropoff = args[1];
-            int numberOfPassengers = Integer.parseInt(args[2]);
-
-            List<Car> processedOptions = new DataProcessingUtility("https://techtest.rideways.com").queryAllProviders(pickup, dropoff, numberOfPassengers);
-            if (processedOptions.isEmpty()) {
-                System.out.println("Could not contact any provider");
+            if (args.length != 3) {
+                System.out.println(USAGE);
             } else {
-                for (Car o : processedOptions) {
-                    System.out.println(o.getCar_type() + " - " + o.getProvider() + " - " + o.getPrice());
+                String pickup = args[0];
+                String dropoff = args[1];
+                int numberOfPassengers = Integer.parseInt(args[2]);
+
+                List<Car> processedOptions = new DataProcessingUtility("https://techtest.rideways.com").queryAllProviders(pickup, dropoff, numberOfPassengers);
+                if (processedOptions.isEmpty()) {
+                    System.out.println("Could not contact any provider");
+                } else {
+                    for (Car o : processedOptions) {
+                        System.out.println(o.getCar_type() + " - " + o.getProvider() + " - " + o.getPrice());
+                    }
                 }
             }
+
         }
     }
-
 
 }
 

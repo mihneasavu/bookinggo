@@ -21,7 +21,7 @@ import java.util.Optional;
 @RestController
 public class BookingGoController {
 
-    private String baseUrl = "https://techtest.rideways.com/";
+    private final String baseUrl = "https://techtest.rideways.com/";
 
     private DataProcessingUtility dataProcessingUtility = new DataProcessingUtility(baseUrl);
 

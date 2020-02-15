@@ -6,7 +6,6 @@ import com.bookinggo.bookinggo.utilities.DataProcessingUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +33,6 @@ public class DataProcessingUtilityTest {
 
     protected WireMockServer wireMockServer;
 
-
-
     @Before
     public void setup() {
         singleProviderResponse = null;
@@ -51,7 +48,7 @@ public class DataProcessingUtilityTest {
 
 
     @Test
-    public void ShouldReturnEmptyOptionalForInvalidProviderName() throws JsonProcessingException {
+    public void shouldReturnEmptyOptionalForInvalidProviderName() throws JsonProcessingException {
         givenAPIRespondsWitAValidResponseForValidProvider();
         whenIQueryForInvalidProvider();
         thenResponseIsEmpty();
@@ -60,23 +57,32 @@ public class DataProcessingUtilityTest {
     }
 
     @Test
-    public void ShouldReturnValidResponseForSingleProviderQuery() throws JsonProcessingException {
+    public void shouldReturnValidResponseForSingleProviderQuery() throws JsonProcessingException {
         givenAPIRespondsWitAValidResponseForValidProvider();
         whenIQueryForProvider("dave");
         thenResponseIsAsExpected("dave");
-
     }
 
-
     @Test
-    public void ShouldReturnCheapestOptionForCarType() throws JsonProcessingException {
+    public void shouldReturnCheapestOptionForCarType() throws JsonProcessingException {
         givenAPIRespondsWitAValidResponseForMultipleProviders();
         whenIQueryForAllProviders();
         thenCheapestOptionIsReturnedForCAR_TYPE();
     }
 
+    @Test
+    public void shouldHandleErrorFromProvider() throws JsonProcessingException {
+        givenAPIRespondsWithErrorForAProvider();
+        whenIQueryForAllProviders();
+        thenAnOptionIsStillReturnedFromTheOtherProvider();
+    }
+
     private void thenCheapestOptionIsReturnedForCAR_TYPE() {
         assertEquals(carList.get(0).getPrice().intValue(), 100000);
+    }
+
+    private void thenAnOptionIsStillReturnedFromTheOtherProvider() {
+        assertEquals(carList.get(0).getProvider(), "dave");
     }
 
 
@@ -143,7 +149,7 @@ public class DataProcessingUtilityTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(new ObjectMapper().writeValueAsString(
                                 new ResponseBuilder()
-                                        .withSupplier_id("dave")
+                                        .withSupplier_id("eric")
                                         .withPickup(PICKUP)
                                         .withDropoff(DROPOFF)
                                         .withOption(new OptionBuilder()
@@ -151,5 +157,25 @@ public class DataProcessingUtilityTest {
                                                 .withCarType(CAR_TYPE).build())
                                         .build()))));
 
+    }
+
+    private void givenAPIRespondsWithErrorForAProvider() throws JsonProcessingException {
+        wireMockServer.stubFor(get(urlPathEqualTo("/dave"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(new ObjectMapper().writeValueAsString(
+                                new ResponseBuilder()
+                                        .withSupplier_id("dave")
+                                        .withPickup(PICKUP)
+                                        .withDropoff(DROPOFF)
+                                        .withOption(new OptionBuilder()
+                                                .withPrice(100000)
+                                                .withCarType(CAR_TYPE).build())
+                                        .build()))));
+
+        wireMockServer.stubFor(get(urlPathEqualTo("/eric"))
+                .willReturn(aResponse()
+                        .withStatus(500)));
     }
 }

@@ -17,7 +17,7 @@ public class DataProcessingUtility {
         this.executor = new ConsoleApplicationRequestExecutor(url);
     }
 
-    private Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
+    private final Map<String, Integer> carCapacityMap = new HashMap<String, Integer>() {{
         put("STANDARD", 4);
         put("EXECUTIVE", 4);
         put("LUXURY", 4);
@@ -25,7 +25,7 @@ public class DataProcessingUtility {
         put("LUXURY_PEOPLE_CARRIER", 6);
         put("MINIBUS", 16);
     }};
-    private List<String> providers = new ArrayList<String>() {{
+    private final List<String> providers = new ArrayList<String>() {{
         add("dave");
         add("eric");
         add("jeff");
@@ -66,8 +66,6 @@ public class DataProcessingUtility {
         }
             return Optional.empty();
     }
-
-
 
     private List<Car> processedReturnedOptions(List<Response> responseList, int passengers) {
 
