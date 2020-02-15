@@ -23,15 +23,15 @@ import static org.junit.Assert.assertNull;
 @RunWith(SpringRunner.class)
 public class DataProcessingUtilityTest {
 
-    private String localhostUrl = "http://localhost:8080/";
-    private Response singleProviderResponse;
-    private List<Car> carList = new ArrayList<>();
-    private static String PICKUP = "3.410632,-2.157533";
-    private static String DROPOFF = "3.410632,-2.157533";
-    private static int PRICE = 100000;
-    private static String CAR_TYPE = "LUXURY";
+    private static final String localhostUrl = "http://localhost:8080/";
+    private static final String PICKUP = "3.410632,-2.157533";
+    private static final String DROPOFF = "3.410632,-2.157533";
+    private static final int PRICE = 100000;
+    private static final String CAR_TYPE = "LUXURY";
 
-    protected WireMockServer wireMockServer;
+    private List<Car> carList = new ArrayList<>();
+    private Response singleProviderResponse;
+    private WireMockServer wireMockServer;
 
     @Before
     public void setup() {
