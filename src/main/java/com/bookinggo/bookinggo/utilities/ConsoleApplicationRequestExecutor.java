@@ -30,7 +30,7 @@ public class ConsoleApplicationRequestExecutor {
                 .queryParam("pickup", pickup)
                 .queryParam("dropoff", dropoff);
 
-        RestTemplate restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(2)).build();
+        RestTemplate restTemplate = new RestTemplateBuilder().setReadTimeout(Duration.ofSeconds(2)).build();
 
         ResponseEntity<Response> responseObj = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, Response.class);
         return responseObj.getBody();

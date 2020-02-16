@@ -31,6 +31,10 @@ public class DataProcessingUtility {
         add("jeff");
     }};
 
+    public int getMaxPassengers(){
+        return Collections.max(this.carCapacityMap.values());
+    }
+
     public Boolean providerValid(String provider){
         return provider.contains(provider);
     }
@@ -44,7 +48,7 @@ public class DataProcessingUtility {
             } catch (RestClientResponseException e) {
                 System.out.println("An error occurred contacting provider " + provider + ": " + e.getRawStatusCode());
             } catch (ResourceAccessException e) {
-                System.out.println("provider " + provider + " timed out: " + e);
+                System.out.println("provider " + provider + " timed out: " + e.getMessage());
             }
         }
 

@@ -23,16 +23,22 @@ public class BookingGoConsoleApplication {
             if (args.length != 3) {
                 System.out.println(USAGE);
             } else {
+                final DataProcessingUtility dataProcessingUtility = new DataProcessingUtility("https://techtest.rideways.com");
+
                 String pickup = args[0];
                 String dropoff = args[1];
                 int numberOfPassengers = Integer.parseInt(args[2]);
-
-                List<Car> processedOptions = new DataProcessingUtility("https://techtest.rideways.com").queryAllProviders(pickup, dropoff, numberOfPassengers);
-                if (processedOptions.isEmpty()) {
-                    System.out.println("Could not contact any provider");
+                int maxPassengers = dataProcessingUtility.getMaxPassengers();
+                if (numberOfPassengers > maxPassengers) {
+                    System.out.println("The largest currently available vehicle can only accommodate " + maxPassengers + " passengers.");
                 } else {
-                    for (Car o : processedOptions) {
-                        System.out.println(o.getCar_type() + " - " + o.getProvider() + " - " + o.getPrice());
+                    List<Car> processedOptions = dataProcessingUtility.queryAllProviders(pickup, dropoff, numberOfPassengers);
+                    if (processedOptions.isEmpty()) {
+                        System.out.println("No provider is available");
+                    } else {
+                        for (Car o : processedOptions) {
+                            System.out.println(o.getCar_type() + " - " + o.getProvider() + " - " + o.getPrice());
+                        }
                     }
                 }
             }
