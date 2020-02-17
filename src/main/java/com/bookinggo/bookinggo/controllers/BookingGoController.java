@@ -28,9 +28,15 @@ public class BookingGoController {
     private DataProcessingUtility dataProcessingUtility = new DataProcessingUtility(baseUrl);
 
     @GetMapping("/rideways")
-    public String queryAllProviders(@RequestParam(value = "pickup") String pickup, @RequestParam(value = "dropoff") String dropoff, @RequestParam(value = "passengers") String passengers) throws JsonProcessingException {
-        List<Car> processedOptions = dataProcessingUtility.queryAllProviders(pickup, dropoff, Integer.parseInt(passengers));
-        return new ObjectMapper().writeValueAsString(processedOptions);
+    public ResponseEntity<String> queryAllProviders(@RequestParam(value = "pickup") String pickup, @RequestParam(value = "dropoff") String dropoff, @RequestParam(value = "passengers") String passengers) throws JsonProcessingException {
+        int numberOfPassengers = Integer.parseInt(passengers);
+        int maxPassengers = dataProcessingUtility.getMaxPassengers();
+        if (numberOfPassengers > maxPassengers) {
+            return new ResponseEntity<>("The largest currently available vehicle can only accommodate " + maxPassengers + " passengers.", HttpStatus.UNPROCESSABLE_ENTITY);
+        } else {
+            List<Car> processedOptions = dataProcessingUtility.queryAllProviders(pickup, dropoff, Integer.parseInt(passengers));
+            return new ResponseEntity<>(new ObjectMapper().writeValueAsString(processedOptions), HttpStatus.OK);
+        }
     }
 
     @GetMapping("/rideways/{provider}")
@@ -39,14 +45,20 @@ public class BookingGoController {
                                                @RequestParam(value = "dropoff") String dropoff,
                                                @RequestParam(value = "passengers") String passengers) throws JsonProcessingException {
 
+        int numberOfPassengers = Integer.parseInt(passengers);
+        int maxPassengers = dataProcessingUtility.getMaxPassengers();
+
         if(!dataProcessingUtility.providerValid(provider)){
-            return new ResponseEntity<>("Invalid provider.",HttpStatus.BAD_REQUEST);
-        }
-        Optional<Response> response = dataProcessingUtility.queryProvider(pickup, dropoff, Integer.parseInt(passengers), provider);
-        if (response.isPresent()) {
-            return new ResponseEntity<>(new ObjectMapper().writeValueAsString(response.get()), HttpStatus.OK);
+            return new ResponseEntity<>("Invalid provider.",HttpStatus.NOT_FOUND);
+        }else if (numberOfPassengers > maxPassengers) {
+            return new ResponseEntity<>("The largest currently available vehicle can only accommodate " + maxPassengers + " passengers.", HttpStatus.UNPROCESSABLE_ENTITY);
         } else {
-            return new ResponseEntity<>("Could not contact provider.", HttpStatus.INTERNAL_SERVER_ERROR);
+            Optional<Response> response = dataProcessingUtility.queryProvider(pickup, dropoff, Integer.parseInt(passengers), provider);
+            if (response.isPresent()) {
+                return new ResponseEntity<>(new ObjectMapper().writeValueAsString(response.get()), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Could not contact provider.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
     }
 }

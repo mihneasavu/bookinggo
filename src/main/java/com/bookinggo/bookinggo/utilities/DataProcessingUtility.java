@@ -36,7 +36,7 @@ public class DataProcessingUtility {
     }
 
     public Boolean providerValid(String provider){
-        return provider.contains(provider);
+        return this.providers.contains(provider);
     }
 
     public List<Car> queryAllProviders(String pickup, String dropoff, int numberOfPassengers) {
