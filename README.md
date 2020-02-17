@@ -106,6 +106,6 @@ The tests use a local Wiremock server to mimic responses from the supplier API. 
 
 The URLs for the API could be stored in properties file, facilitating changing the URL during testing.
 
-In a production application, the vehicle types and capacity might be stored in a database, dpending on how often these change or on different suppliers having different vehicle names.
+In a production application, the vehicle types and capacity might be stored in a database, depending on how often these change or on different suppliers having different vehicle names.
 
 
