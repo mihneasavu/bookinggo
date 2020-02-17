@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,19 +34,19 @@ public class BookingGoController {
     }
 
     @GetMapping("/rideways/{provider}")
-    public String queryProvider(@PathVariable("provider") String provider,
-                                @RequestParam(value = "pickup") String pickup,
-                                @RequestParam(value = "dropoff") String dropoff,
-                                @RequestParam(value = "passengers") String passengers) throws JsonProcessingException {
+    public ResponseEntity<String> queryProvider(@PathVariable("provider") String provider,
+                                               @RequestParam(value = "pickup") String pickup,
+                                               @RequestParam(value = "dropoff") String dropoff,
+                                               @RequestParam(value = "passengers") String passengers) throws JsonProcessingException {
 
         if(!dataProcessingUtility.providerValid(provider)){
-            return "Invalid provider.";
+            return new ResponseEntity<>("Invalid provider.",HttpStatus.BAD_REQUEST);
         }
         Optional<Response> response = dataProcessingUtility.queryProvider(pickup, dropoff, Integer.parseInt(passengers), provider);
         if (response.isPresent()) {
-            return new ObjectMapper().writeValueAsString(response.get());
+            return new ResponseEntity<>(new ObjectMapper().writeValueAsString(response.get()), HttpStatus.OK);
         } else {
-            return "Could not contact the provider.";
+            return new ResponseEntity<>("Could not contact provider.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
